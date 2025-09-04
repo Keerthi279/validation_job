@@ -1,0 +1,25 @@
+Request: curl --location --request POST 'http://127.0.0.1:5001/validation/register/1' \
+--header 'X-API-Key: ACCESS_TOKEN_FOR_API_AUTHENTICATION' \
+--header 'request-id: 332' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "dataset_id": "22",
+    "as_of_date": "31-01-2024",
+    "table": "TEST",
+    "table_group": "233"
+}'
+
+Response:
+{
+    "data_received": {
+        "as_of_date": "31-01-2024",
+        "dataset_id": "22",
+        "table": "TEST",
+        "table_group": "233"
+    },
+    "message": "Validation request registered and event enqueued.",
+    "request_id_received": "332",
+    "status": "success",
+    "user_id": "1"
+}
+
