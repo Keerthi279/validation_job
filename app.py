@@ -14,7 +14,7 @@ logging.basicConfig(
 app = Flask(__name__)
 
 @app.route('/validation/register/<user_id>', methods=['POST'])
-def trigger_validation(user_id):
+def register_validation_request(user_id):
     """
     Registers a dataset for a given user.
     Accepts JSON body with 'dataset_id' and 'as_of_date'.
