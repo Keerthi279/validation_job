@@ -16,9 +16,9 @@ app = Flask(__name__)
 @app.route('/validation/register/<user_id>', methods=['POST'])
 def register_validation_request(user_id):
     """
-    Registers a dataset for a given user.
+    Registers a validation job in db and redis for a given user.
     Accepts JSON body with 'dataset_id' and 'as_of_date'.
-    Requires 'request_id' and 'X-Dummy-Token' in headers.
+    Requires 'request_id' and 'X-Api-Token' in headers.
     """
     headers, code = validate_request_header(request)
     if code != 200:
