@@ -13,7 +13,7 @@ logging.basicConfig(
 
 app = Flask(__name__)
 
-@app.route('/trigger_validation/<user_id>', methods=['POST'])
+@app.route('/validation/register/<user_id>', methods=['POST'])
 def trigger_validation(user_id):
     """
     Registers a dataset for a given user.
