@@ -1,7 +1,7 @@
 import logging
 from flask import Flask, request, jsonify
-from validator import validate_request_header, validate_validation_job
-from service import process_validation_job_request
+from api.validation_job import validation_job_blp
+from flask_smorest import Api
 
 # --- 1. Configure Logging ---
 # Set up a basic configuration for the logger.
@@ -12,31 +12,17 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
+# Configure the Swagger UI
+app.config["API_TITLE"] = "Validation Job API"
+app.config["API_VERSION"] = "v1"
+app.config["OPENAPI_VERSION"] = "3.0.2"
+app.config["OPENAPI_URL_PREFIX"] = "/"
+app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
+app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
-@app.route('/validation/register/<user_id>', methods=['POST'])
-def register_validation_request(user_id):
-    """
-    Registers a validation job in db and redis for a given user.
-    Accepts JSON body with 'dataset_id' and 'as_of_date'.
-    Requires 'request_id' and 'X-Api-Token' in headers.
-    """
-    headers, code = validate_request_header(request)
-    if code != 200:
-        app.logger.warning(f"Header validation failed: {headers}")
-        return jsonify({"error": headers}), code
-    
-    data, code = validate_validation_job(request)
-    if code != 200:
-        app.logger.warning(f"Body validation failed: {data}")
-        return jsonify({"error": data}), code
-    
-    response, code = process_validation_job_request(headers, data, user_id)
-    if code != 200:
-        app.logger.error(f"Processing validation job failed: {response}")
-    else:
-        app.logger.info(f"Validation job processed successfully for user {user_id}")
-    
-    return response, code
+api = Api(app)
+api.register_blueprint(validation_job_blp)
+
 
 if __name__ == '__main__':
     # Running on port 5001 to avoid conflicts with common dev ports.
