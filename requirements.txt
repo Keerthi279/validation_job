@@ -1,2 +1,3 @@
-marshmallow
 Flask
+marshmallow
+flask_smorest
