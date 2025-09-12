@@ -7,27 +7,27 @@ db_connection = db_connection.get_connection()
 
 def add_validation_request(headers, data):
     columns = [
-        ID,
-        GROUP_NAME,
-        SRC_ASOF,
-        SRC_DATASET_ID,
-        SRC_SCHEMA,
-        TGET_ASOF,
-        TGT_DATASET_ID,
-        TGT_SCHEMA,
-        TABLE_NAME,
-        REQUESTED_BY,
-        CREATE_TS
+        "GROUP_NAME",
+        "SRC_ASOF",
+        "SRC_DATASET_ID",
+        "SRC_SCHEMA",
+        "TGET_ASOF",
+        "TGT_DATASET_ID",
+        "TGT_SCHEMA",
+        "TABLE_NAME",
+        "REQUESTED_BY",
+        "STATUS"
     ]
 
     try:
         insert_query, data_to_insert = generate_insert_query("data_comp_request_master", "DATA_COMP_REQUEST_MASTER_SEQ", columns, data)
         with db_connection.cursor() as cursor:
             cursor.execute(insert_query, data_to_insert)
-        connection.commit()
+        db_connection.commit()
         print("Data inserted successfully")
     except oracledb.Error as e:
         print("Error inserting data:", e)
+        return False
     
     return True
 
