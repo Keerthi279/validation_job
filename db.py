@@ -21,7 +21,7 @@ def add_validation_request(headers, data):
     ]
 
     try:
-        insert_query, data_to_insert = generate_insert_query("data_cmp_", columns, data)
+        insert_query, data_to_insert = generate_insert_query("data_comp_request_master", "DATA_COMP_REQUEST_MASTER_SEQ", columns, data)
         with db_connection.cursor() as cursor:
             cursor.execute(insert_query, data_to_insert)
         connection.commit()
@@ -32,7 +32,7 @@ def add_validation_request(headers, data):
     return True
 
 
-def generate_insert_query(table_name, columns, data):
+def generate_insert_query(table_name, sequence_name, columns, data):
     """
     Generates a safe Oracle INSERT query with named placeholders.
 
@@ -44,14 +44,15 @@ def generate_insert_query(table_name, columns, data):
         tuple: A tuple containing the query string and the data dictionary.
     """
     # Create the column part of the query: "(ID, GROUP_NAME, ...)"
-    column_names = ", ".join(columns)
+    id_column = "ID"
+    all_columns_str = f"{id_column}, {', '.join(columns)}"
 
-    # Create the placeholders part of the query: "(:ID, :GROUP_NAME, ...)"
-    # The ":" prefix is the standard for named placeholders in many Oracle drivers
+    # The sequence's .NEXTVAL is used for the ID, not a placeholder.
     placeholders = ", ".join(f":{col}" for col in columns)
+    all_values_str = f"{sequence_name}.NEXTVAL, {', '.join(placeholders)}"
 
     # Construct the final query string
-    query = f"INSERT INTO {table_name} ({column_names}) VALUES ({placeholders})"
+    query = f"INSERT INTO {table_name} ({all_columns_str}) VALUES ({all_values_str})"
 
     return query, data
 
