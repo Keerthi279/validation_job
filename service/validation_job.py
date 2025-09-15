@@ -1,4 +1,4 @@
-from db import add_validation_request
+from db import add_validation_request, fetch_records
 from redis import push_validation_event
 from flask import jsonify
 
@@ -31,3 +31,37 @@ def process_validation_job_request(headers, data):
     }
 
     return jsonify(response), 200
+
+
+def fetch_data_cmp_request_master_records():
+    table_name = "data_cmp_request_master"
+    columns = [
+        "ID",
+        "GROUP_NAME",
+        "SRC_ASOF",
+        "SRC_DATASET_ID",
+        "SRC_SCHEMA",
+        "TGET_ASOF",
+        "TGT_DATASET_ID",
+        "TGT_SCHEMA",
+        "TABLE_NAME",
+        "REQUESTED_BY",
+        "STATUS"
+    ]
+
+    records = fetch_records(table_name, columns)
+    if records is False:
+        response = {
+            "status": "failed",
+            "message": "Failed to retrieve the data from the database.",
+            "data": []
+        }
+        return jsonify(response), 500
+    
+    response = {
+        "status": "success",
+        "message": "Validation request registered and event enqueued.",
+        "data": records
+    }
+
+    return jsonify(response), 200 

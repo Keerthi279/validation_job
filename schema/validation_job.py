@@ -15,3 +15,7 @@ class ValidationJobSuccessSchema(Schema):
     request_id_received = fields.Str(required=True)
     data_received = fields.Dict(required=True)
 
+class ValidationJobRecordsSchema(Schema):
+    status = fields.Str(required=True)
+    message = fields.Str(required=True)
+    data = fields.List(required=True)

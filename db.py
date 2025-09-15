@@ -57,3 +57,30 @@ def generate_insert_query(table_name, sequence_name, columns, data):
     return query, data
 
 
+def fetch_records(table_name, columns, where_params=None):
+    if '*' in columns:
+        select_clause = "*"
+    else:
+        # Join the list of column names into a comma-separated string
+        select_clause = ", ".join(columns)
+
+    query = f"SELECT {select_clause} FROM {table_name}"
+
+    if where_params:
+        where_clauses = [f"{key} = :{key}" for key in where_params.keys()]
+        query += " WHERE " + " AND ".join(where_clauses)
+
+    results = []
+    try:
+        with db_connection.cursor() as cursor:
+            cursor.execute(query, where_params or {})
+            colnames = [desc[0].lower() for desc in cursor.description]
+            for row in cursor.fetchall():
+                results.append(dict(zip(colnames, row)))
+
+    except oracledb.DatabaseError as e:
+        return False
+
+    return results
+
+
