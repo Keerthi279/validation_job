@@ -84,3 +84,19 @@ def fetch_records(table_name, columns, where_params=None):
     return results
 
 
+def run_update_query(sql_query, params):
+    with db_connection.cursor() as cursor:
+        try:
+            cursor.execute(sql_query, params)
+            rows_updated = cursor.rowcount
+            connection.commit()
+            print(f"✅ Successfully updated {rows_updated} row(s).")
+            
+        except oracledb.Error as e:
+            error_obj, = e.args
+            connection.rollback()
+            rows_updated = -1 
+        finally:
+            return rows_updated
+
+
