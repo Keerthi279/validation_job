@@ -1,21 +1,24 @@
 from typing import List, Dict, Any, Tuple
 
-def prepare_oracle_bulk_insert(table_name: str, data: List[Dict[str, Any]]) -> Tuple[str, List[Tuple]]:
+def prepare_oracle_bulk_insert_with_seq(
+    table_name: str, 
+    data: List[Dict[str, Any]],
+    id_column: str,
+    seq_name: str
+    ) -> Tuple[Optional[str], List[Tuple]]:
     
     if not data:
-        print("Warning: Input data is empty.")
+        print("Warning: Input data for bulk insert is empty.")
         return None, []
 
-    columns = list(data[0].keys())
-    column_sql = f'({", ".join(columns)})'
-    binds_sql = f'({", ".join([f":{i+1}" for i in range(len(columns))])})'
+    data_columns = list(data[0].keys())
+    all_columns_sql = f'({id_column}, {", ".join(data_columns)})'
+
+    binds = [f":{i+1}" for i in range(len(data_columns))]
+    values_sql = f'({seq_name}.nextval, {", ".join(binds)})'
     
-    # Assemble the final parameterized SQL statement
-    sql_statement = f"INSERT INTO {table_name} {column_sql} VALUES {binds_sql}"
-    
-    # Transform the list of dictionaries into a list of tuples
-    # The order of values in each tuple must match the order of the columns
-    data_tuples = [tuple(row[col] for col in columns) for row in data]
+    sql_statement = f"INSERT INTO {table_name} {all_columns_sql} VALUES {values_sql}"
+    data_tuples = [tuple(row[col] for col in data_columns) for row in data]
     
     return sql_statement, data_tuples
 
