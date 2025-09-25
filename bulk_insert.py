@@ -1,26 +1,33 @@
 from typing import List, Dict, Any, Tuple
 
 def prepare_oracle_bulk_insert_with_seq(
-    table_name: str, 
+    table_name: str,
     data: List[Dict[str, Any]],
     id_column: str,
     seq_name: str
-    ) -> Tuple[Optional[str], List[Tuple]]:
-    
+) -> Tuple[Optional[str], List[Dict[str, Any]]]:
+
     if not data:
         print("Warning: Input data for bulk insert is empty.")
         return None, []
 
+    # Extract column names from the first row
     data_columns = list(data[0].keys())
+
+    # SQL columns
     all_columns_sql = f'({id_column}, {", ".join(data_columns)})'
 
-    binds = [f":{i+1}" for i in range(len(data_columns))]
+    # Named bind variables based on keys
+    binds = [f":{col}" for col in data_columns]
     values_sql = f'({seq_name}.nextval, {", ".join(binds)})'
-    
+
+    # Final SQL statement
     sql_statement = f"INSERT INTO {table_name} {all_columns_sql} VALUES {values_sql}"
-    data_tuples = [tuple(row[col] for col in data_columns) for row in data]
-    
-    return sql_statement, data_tuples
+
+    # Use dicts directly instead of tuples so cx_Oracle can bind by name
+    data_dicts = data
+
+    return sql_statement, data_dicts
 
 
 def handle_validation_register(data):
